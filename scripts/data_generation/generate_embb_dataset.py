@@ -98,7 +98,7 @@ df["future_throughput"] = df["throughput_mbps"].shift(-1)
 df.dropna(inplace=True)
 
 # Save dataset
-df.to_csv("embb_dataset_v4.csv", index=False)
+df.to_csv("embb_dataset.csv", index=False)
 
 print(df.head())
 print("\nDataset shape:", df.shape)

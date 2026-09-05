@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # -----------------------------
 # Load Dataset
 # -----------------------------
-df = pd.read_csv("embb_dataset_v4_with_target.csv")
+df = pd.read_csv("embb_dataset_with_target.csv")
 
 features = df[
     [
@@ -109,7 +109,7 @@ model = LSTMModel()
 
 model.load_state_dict(
     torch.load(
-        "embb_lstm_v4.pth",
+        "embb_lstm.pth",
         map_location=torch.device("cpu")
     )
 )

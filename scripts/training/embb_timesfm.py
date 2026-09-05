@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 
 print("Loading dataset...")
 
-df = pd.read_csv("embb_dataset_v4.csv")
+df = pd.read_csv("embb_dataset.csv")
 
 throughput = df["throughput_mbps"].values
 
@@ -30,7 +30,7 @@ print("Starting evaluation...")
 
 predictions = []
 actuals = []
-
+timestamps = []
 for i in range(max(split_idx, 128), len(df)):
 
     history = throughput[i-128:i]
@@ -45,10 +45,22 @@ for i in range(max(split_idx, 128), len(df)):
 
     predictions.append(prediction)
     actuals.append(df["future_throughput"].iloc[i])
+    timestamps.append(df["timestamp"].iloc[i])
 
     if (i - split_idx + 1) % 100 == 0:
         print(f"Completed {i - split_idx + 1}/{len(df) - split_idx}")
+prediction_df = pd.DataFrame({
+    "timestamp": timestamps,
+    "actual_throughput": actuals,
+    "predicted_throughput": predictions
+})
 
+prediction_df.to_csv(
+    "embb_timesfm_predictions.csv",
+    index=False
+)
+
+print("\nPredictions saved to embb_timesfm_predictions.csv")
 mae = mean_absolute_error(actuals, predictions)
 rmse = np.sqrt(mean_squared_error(actuals, predictions))
 

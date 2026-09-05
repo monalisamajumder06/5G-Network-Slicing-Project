@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load dataset
-df = pd.read_csv("embb_dataset_v4.csv")
+df = pd.read_csv("datasets/embb/embb_dataset.csv")
 
 # Create target column
 df["future_throughput_mbps"] = df["throughput_mbps"].shift(-1)
@@ -10,7 +10,7 @@ df["future_throughput_mbps"] = df["throughput_mbps"].shift(-1)
 df = df.dropna()
 
 # Save new dataset
-df.to_csv("embb_dataset_v4_with_target.csv", index=False)
+df.to_csv("embb_dataset_with_target.csv", index=False)
 
 print(df.head())
 print("\nShape:", df.shape)

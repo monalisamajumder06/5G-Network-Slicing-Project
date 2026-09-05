@@ -13,22 +13,26 @@ from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 
 # Load dataset
-df = pd.read_csv("mmtc_dataset_v2_with_target.csv")
+df = pd.read_csv("embb_dataset_with_target.csv")
 
 # Features and target
-features = ["packet_rate", "active_users", "packet_loss"]
-target = "future_packet_rate"
+features = df[
+    ["throughput_mbps",
+     "active_users",
+     "packet_loss"]
+].values
+
+target = df["future_throughput"].values
 
 # Sliding window
-sequence_length = 60
-X_data = df[features].values
-y_data = df[target].values
+sequence_length = 30
+
 X = []
 y = []
 
-for i in range(len(X_data) - sequence_length):
-    X.append(X_data[i:i + sequence_length])
-    y.append(y_data[i + sequence_length])
+for i in range(len(features) - sequence_length):
+    X.append(features[i:i + sequence_length])
+    y.append(target[i + sequence_length])
 
 X = np.array(X)
 y = np.array(y)
@@ -44,6 +48,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Normalization
 scaler = MinMaxScaler()
 target_scaler = MinMaxScaler()
+
 X_train_reshaped = X_train.reshape(-1, 3)
 X_test_reshaped = X_test.reshape(-1, 3)
 
@@ -62,6 +67,7 @@ X_train_scaled = X_train_scaled.reshape(
 X_test_scaled = X_test_scaled.reshape(
     X_test.shape
 )
+
 y_train_scaled = target_scaler.fit_transform(
     y_train.reshape(-1, 1)
 )
@@ -69,6 +75,7 @@ y_train_scaled = target_scaler.fit_transform(
 y_test_scaled = target_scaler.transform(
     y_test.reshape(-1, 1)
 )
+
 # Convert to tensors
 X_train_tensor = torch.tensor(
     X_train_scaled,
@@ -102,7 +109,7 @@ train_loader = DataLoader(
     shuffle=False
 )
 
-#LSTM Model
+# LSTM Model
 class LSTMModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -110,29 +117,34 @@ class LSTMModel(nn.Module):
         self.lstm = nn.LSTM(
             input_size=3,
             hidden_size=128,
-            num_layers=3,
+            num_layers=2,
             batch_first=True
         )
 
-        self.fc = nn.Linear(128, 1)
+        self.fc = nn.Linear(
+            128,
+            1
+        )
+
     def forward(self, x):
 
         output, (hidden, cell) = self.lstm(x)
 
-        x = hidden[-1]
+        out = self.fc(
+            hidden[-1]
+        )
 
-        x = self.fc(x)
+        return out
 
-        return x
 model = LSTMModel()
+
 # Loss Function
 criterion = nn.MSELoss()
 
 # Optimizer
 optimizer = torch.optim.AdamW(
     model.parameters(),
-    lr=0.0005,
-    weight_decay=1e-4
+    lr=0.0005
 )
 
 # Training
@@ -185,6 +197,7 @@ plt.grid(True)
 
 plt.show()
 
+# Baseline
 baseline_pred = X_test[:, -1, 0]
 
 baseline_mae = mean_absolute_error(
@@ -202,17 +215,20 @@ baseline_rmse = np.sqrt(
 print("\nBaseline Results")
 print("MAE:", baseline_mae)
 print("RMSE:", baseline_rmse)
+
 # Evaluation
 model.eval()
 
 with torch.no_grad():
-#generate predictions
+
     y_pred = model(
         X_test_tensor
     ).numpy()
-#back to original
-y_pred = target_scaler.inverse_transform(y_pred)
-y_pred = np.clip(y_pred, 10, None)
+
+# Back to original scale
+y_pred = target_scaler.inverse_transform(
+    y_pred
+)
 
 print("\nPrediction statistics:")
 print("Min:", y_pred.min())
@@ -248,10 +264,10 @@ plt.plot(
 )
 
 plt.xlabel("Sample")
-plt.ylabel("Packet Rate")
+plt.ylabel("Throughput")
 
 plt.title(
-    "Actual vs Predicted Packet Rate"
+    "Actual vs Predicted Throughput"
 )
 
 plt.legend()
@@ -263,9 +279,9 @@ plt.show()
 # Save Model
 torch.save(
     model.state_dict(),
-    "mmtc_lstm.pth"
+    "embb_lstm.pth"
 )
 
 print(
-    "\nModel saved as mmtc_lstm.pth"
+    "\nModel saved as embb_lstm.pth"
 )

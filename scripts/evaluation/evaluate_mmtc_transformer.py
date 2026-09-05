@@ -29,7 +29,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Load dataset
-df = pd.read_csv("mmtc_dataset_v2_with_target.csv")
+df = pd.read_csv("mmtc_dataset_with_target.csv")
 
 features = ["packet_rate", "active_users", "packet_loss"]
 target = "future_packet_rate"
@@ -182,7 +182,7 @@ class PatchTST(nn.Module):
 
         self.transformer = nn.TransformerEncoder(
             encoder_layer,
-            num_layers=2
+            num_layers=3
         )
 
         self.fc = nn.Linear(128, 1)
@@ -230,69 +230,18 @@ print("Training shape:", X_train_tensor.shape)
 sample_output = model(X_train_tensor[:32])
 
 print("Output shape:", sample_output.shape)
-# Loss Function
-criterion = nn.SmoothL1Loss(beta=0.1)
+model = PatchTST()
 
-# Optimizer
-optimizer = torch.optim.AdamW(
-    model.parameters(),
-    lr=0.0001,
-    weight_decay = 1e-4
+model.load_state_dict(
+    torch.load(
+        "mmtc_transformer.pth",
+        map_location=torch.device("cpu")
+    )
 )
 
-# Training
-epochs = 100
+model.eval()
 
-train_losses = []
-
-for epoch in range(epochs):
-
-    model.train()
-
-    epoch_loss = 0
-
-    for X_batch, y_batch in train_loader:
-
-        optimizer.zero_grad()
-
-        predictions = model(X_batch)
-
-        loss = criterion(
-            predictions,
-            y_batch
-        )
-
-        loss.backward()
-	
-        nn.utils.clip_grad_norm_(
-        model.parameters(),
-        max_norm=1.0
-        )
-        optimizer.step()
-
-        epoch_loss += loss.item()
-
-    avg_loss = epoch_loss / len(train_loader)
-
-    train_losses.append(avg_loss)
-
-    print(
-        f"Epoch {epoch+1}/{epochs}, "
-        f"Loss: {avg_loss:.4f}"
-    )
-
-# Plot Loss
-plt.figure(figsize=(10,5))
-
-plt.plot(train_losses)
-
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.title("Training Loss")
-
-plt.grid(True)
-
-plt.show()
+print("Model loaded successfully.")
 
 baseline_pred = X_test[:, -1, 0]
 
@@ -370,12 +319,4 @@ plt.grid(True)
 
 plt.show()
 
-# Save Model
-torch.save(
-    model.state_dict(),
-    "mmtc_transformer.pth"
-)
 
-print(
-    "\nModel saved as mmtc_transformer.pth"
-)

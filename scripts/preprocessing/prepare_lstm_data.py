@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load dataset
-df = pd.read_csv("embb_dataset_v2_with_target.csv")
+df = pd.read_csv("embb_dataset_with_target.csv")
 
 # Input features
 features = df[["throughput_mbps", "active_users", "packet_loss"]].values

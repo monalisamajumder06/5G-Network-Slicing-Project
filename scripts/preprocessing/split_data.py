@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 # Load dataset
-df = pd.read_csv("mmtc_dataset_v2_with_target.csv")
+df = pd.read_csv("mmtc_dataset_with_target.csv")
 
 features = ["packet_rate", "active_users", "packet_loss"]
 target = "future_packet_rate"

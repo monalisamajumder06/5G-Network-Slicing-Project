@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 # Load dataset
-df = pd.read_csv("embb_dataset_v2_with_target.csv")
+df = pd.read_csv("embb_dataset_with_target.csv")
 
 # Features and target
 features = df[["throughput_mbps", "active_users", "packet_loss"]].values

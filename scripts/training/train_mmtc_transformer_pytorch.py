@@ -29,20 +29,15 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Load dataset
-df = pd.read_csv("embb_dataset_v4_with_target.csv")
+df = pd.read_csv("mmtc_dataset_with_target.csv")
 
-features = [
-    "throughput_mbps",
-    "active_users",
-    "packet_loss"
-]
-
-target = "future_throughput"
+features = ["packet_rate", "active_users", "packet_loss"]
+target = "future_packet_rate"
 
 X_data = df[features].values
 y_data = df[target].values
 
-sequence_length = 30
+sequence_length = 60
 
 X = []
 y = []
@@ -119,8 +114,8 @@ train_dataset = TensorDataset(
 
 train_loader = DataLoader(
     train_dataset,
-    batch_size=128,
-    shuffle=False
+    batch_size=64,
+    shuffle=True
 )
 #positional encoding
 import math
@@ -166,21 +161,21 @@ class PatchTST(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.patch_size = 3
-        self.stride = 3
+        self.patch_size = 10
+        self.stride = 5
 
         # Each patch:
         # 5 timesteps × 3 features = 15 values
         self.input_projection = nn.Linear(
-            9,
-            64
+            30,
+            128
         )
 
-        self.pos_encoder = PositionalEncoding(64)
+        self.pos_encoder = PositionalEncoding(128)
 
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=64,
-            nhead=4,
+            d_model=128,
+            nhead=8,
             dropout=0.05,
             batch_first=True
         )
@@ -188,9 +183,9 @@ class PatchTST(nn.Module):
         self.transformer = nn.TransformerEncoder(
             encoder_layer,
             num_layers=2
-        )  
+        )
 
-        self.fc = nn.Linear(64, 1)
+        self.fc = nn.Linear(128, 1)
 
     def forward(self, x):
 
@@ -213,7 +208,7 @@ class PatchTST(nn.Module):
         # Shape:
         # [batch, 10, 5, 3]
 
-        x = x.reshape(x.size(0), -1, 9)
+        x = x.reshape(x.size(0), -1, 30)
         # Shape:
         # [batch, 10, 15]
 
@@ -236,17 +231,17 @@ sample_output = model(X_train_tensor[:32])
 
 print("Output shape:", sample_output.shape)
 # Loss Function
-criterion = nn.MSELoss()
+criterion = nn.SmoothL1Loss(beta=0.1)
 
 # Optimizer
 optimizer = torch.optim.AdamW(
     model.parameters(),
-    lr=0.0002,
+    lr=0.0001,
     weight_decay = 1e-4
 )
 
 # Training
-epochs = 50
+epochs = 100
 
 train_losses = []
 
@@ -268,7 +263,11 @@ for epoch in range(epochs):
         )
 
         loss.backward()
-
+	
+        nn.utils.clip_grad_norm_(
+        model.parameters(),
+        max_norm=1.0
+        )
         optimizer.step()
 
         epoch_loss += loss.item()
@@ -324,7 +323,7 @@ with torch.no_grad():
 y_pred = target_scaler.inverse_transform(
     y_pred
 )
-
+y_pred = np.clip(y_pred, 10, None)
 print("\nPrediction statistics:")
 print("Min:", y_pred.min())
 print("Max:", y_pred.max())
@@ -359,10 +358,10 @@ plt.plot(
 )
 
 plt.xlabel("Sample")
-plt.ylabel("Throughput")
+plt.ylabel("Packet Rate")
 
 plt.title(
-    "Actual vs Predicted Throughput"
+    "Actual vs Predicted Packet Rate"
 )
 
 plt.legend()
@@ -374,9 +373,9 @@ plt.show()
 # Save Model
 torch.save(
     model.state_dict(),
-    "embb_transformer.pth"
+    "mmtc_transformer.pth"
 )
 
 print(
-    "\nModel saved as embb_transformer.pth"
+    "\nModel saved as mmtc_transformer.pth"
 )
