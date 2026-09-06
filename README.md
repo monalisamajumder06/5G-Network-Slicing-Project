@@ -1,72 +1,169 @@
-AI-Driven 5G Network Slicing with Time-Series Forecasting and Dynamic Resource Allocation
+<div align="center">
 
-An end-to-end 5G Network Slicing project combining Open5GS, UERANSIM, time-series forecasting, and QoS-aware dynamic resource allocation.
+# 🚀 AI-Driven 5G Network Slicing
 
-Overview
+<p>
+  <strong>Time-Series Forecasting + Dynamic QoS-Aware Resource Allocation</strong>
+</p>
 
-5G Network Slicing allows a physical 5G network to be divided into logical networks with different performance requirements.
+<p>
+  An end-to-end 5G network slicing framework that uses machine learning<br>
+  to forecast network conditions and dynamically allocate network resources.
+</p>
 
-This project explores how machine learning can make network slicing more proactive by predicting future traffic and network conditions for three major 5G service categories:
+</div>
 
-eMBB — Enhanced Mobile Broadband
-URLLC — Ultra-Reliable Low-Latency Communication
-mMTC — Massive Machine-Type Communication
+<p align="center">
+  <img src="https://img.shields.io/badge/5G-Network%20Slicing-0A66C2?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Open5GS-5G%20Core-1F8B4C?style=for-the-badge">
+  <img src="https://img.shields.io/badge/UERANSIM-5G%20Simulator-8A2BE2?style=for-the-badge">
+  <img src="https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white">
+</p>
 
-The project implements an end-to-end pipeline:
+<p align="center">
+  <img src="https://img.shields.io/badge/TimesFM-Forecasting-FF6F00?style=for-the-badge">
+  <img src="https://img.shields.io/badge/PatchTST-Transformer-6A1B9A?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white">
+</p>
 
-5G Testbed
-    │
-    ▼
-Open5GS + UERANSIM
-    │
-    ▼
-Traffic Generation & Data Collection
-    │
-    ▼
-Preprocessing
-    │
-    ▼
-Time-Series Forecasting
-    │
-    ├── eMBB  → Throughput Prediction
-    ├── URLLC → Latency Prediction
-    └── mMTC  → Packet-Rate Prediction
-    │
-    ▼
-Predicted Network Demand
-    │
-    ▼
-QoS-Aware Dynamic PRB Allocation
-    │
-    ▼
-100 PRBs Distributed Across Slices
+---
 
-The final stage uses model predictions to dynamically distribute available Physical Resource Blocks (PRBs) between the three slices while respecting minimum resource guarantees.
+## 📌 Project Overview
 
-Key Objectives
-Build a practical 5G network slicing testbed.
-Generate and process network traffic data.
-Model traffic and QoS behavior for eMBB, URLLC, and mMTC.
-Compare different time-series forecasting approaches.
-Evaluate forecasting models using MAE and RMSE.
-Use model predictions to drive dynamic resource allocation.
-Compare dynamic allocation against a static baseline.
-Explore prediction-driven and proactive 5G network management.
-System Architecture
+5G Network Slicing enables a physical 5G infrastructure to be divided into multiple logical networks, or **network slices**, where each slice can be optimized for a different type of application.
 
-The project is organized into four major stages.
+This project develops an **AI-driven network slicing framework** that combines a simulated 5G environment with **time-series forecasting** and **dynamic resource allocation**.
 
-1. 5G Network Testbed
+The framework focuses on three major 5G service categories:
 
-The networking environment is based on:
+| Slice | SST | Main Requirement | Forecasting Target | Selected Model |
+|:---:|:---:|---|---|:---:|
+| 🟦 **eMBB** | 1 | High Throughput | Future Throughput | **LSTM** |
+| 🟥 **URLLC** | 3 | Low Latency | Future Latency | **TimesFM** |
+| 🟩 **mMTC** | 2 | Massive Connectivity | Future Packet Rate | **PatchTST** |
 
-Open5GS — 5G Core Network
-UERANSIM — UE and gNB simulator
-Ubuntu Linux
+The core idea is simple:
 
-Different UE loads are used to represent changing network conditions.
+> **Predict future network conditions → estimate future slice demand → dynamically allocate resources.**
 
-Experiments include:
+---
+
+# 🎯 Problem Statement
+
+Traditional resource allocation approaches often rely on **static configurations** or current network measurements.
+
+However, 5G traffic conditions continuously change depending on:
+
+- Number of active users
+- Traffic intensity
+- Throughput
+- Latency
+- Jitter
+- Packet loss
+- Packet generation rate
+
+A fixed allocation can therefore lead to:
+
+- Under-utilization of available resources
+- Resource contention between slices
+- Poor adaptation to changing traffic
+- Inefficient QoS management
+
+### 💡 Our Approach
+
+Instead of waiting for network conditions to change, this project attempts to **forecast future network behavior** and use those predictions to make resource allocation decisions.
+
+---
+
+# 🏗️ System Architecture
+
+<p align="center">
+  <img src="resource_controller/plots/dynamic_vs_static_alignment.png" width="850">
+</p>
+
+### End-to-End Pipeline
+
+                    ┌─────────────────────────┐
+                    │      5G TESTBED         │
+                    │   Open5GS + UERANSIM    │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │  Traffic / QoS Data     │
+                    │       Collection        │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Dataset Generation &    │
+                    │    Preprocessing        │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Time-Series Forecasting │
+                    └────────────┬────────────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              ▼                  ▼                  ▼
+        ┌───────────┐      ┌───────────┐      ┌───────────┐
+        │   eMBB    │      │   URLLC   │      │   mMTC    │
+        │   LSTM    │      │  TimesFM  │      │  PatchTST │
+        └─────┬─────┘      └─────┬─────┘      └─────┬─────┘
+              │                  │                  │
+              └──────────────────┼──────────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Predicted Network       │
+                    │ Conditions              │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Demand Estimation       │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ QoS-Aware Resource      │
+                    │ Controller              │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Dynamic PRB Allocation  │
+                    │       100 PRBs          │
+                    └─────────────────────────┘
+
+# 📡 5G Network Environment
+
+The networking environment is built using:
+
+### 🔹 Open5GS
+
+Provides the **5G Core Network** infrastructure.
+
+### 🔹 UERANSIM
+
+Provides simulated:
+
+* gNB
+* User Equipment (UE)
+* 5G radio access network behavior
+
+### 🔹 Network Slices
+
+Three slices are configured:
+
+SST 1 → eMBB
+SST 2 → mMTC
+SST 3 → URLLC
+
+
+Experiments are performed using different numbers of active UEs:
+
 
 1 UE
 2 UEs
@@ -74,194 +171,467 @@ Experiments include:
 6 UEs
 8 UEs
 10 UEs
-2. Dataset Generation and Preprocessing
 
-The project uses network measurements and time-series datasets for the three network slices.
 
-The datasets contain network measurements relevant to each slice and corresponding future prediction targets.
+This allows the system to observe network behavior under different traffic and user-load conditions.
 
-eMBB
 
-Inputs:
+
+# 🔀 Network Slice Design
+
+## 🟦 eMBB — Enhanced Mobile Broadband
+
+eMBB targets applications requiring **high data throughput**.
+
+### Typical Applications
+
+* Video streaming
+* Cloud gaming
+* Virtual reality
+* Augmented reality
+* High-bandwidth multimedia
+
+### Dataset Features
+
 
 Throughput
-Packet Loss
 Active Users
+Packet Loss
 
-Target:
+
+### Forecasting Target
+
 
 Future Throughput
-URLLC
 
-Inputs:
+
+### Selected Model
+
+**LSTM**
+
+
+## 🟥 URLLC — Ultra-Reliable Low-Latency Communication
+
+URLLC targets applications where **latency and reliability are critical**.
+
+### Typical Applications
+
+* Industrial automation
+* Robotics
+* Autonomous systems
+* Remote control
+* Mission-critical communication
+
+### Dataset Features
+
 
 Latency
 Jitter
 Packet Loss
 Active Users
 
-Target:
+
+### Forecasting Target
+
 
 Future Latency
-mMTC
 
-Inputs:
+
+### Selected Model
+
+**TimesFM**
+
+TimesFM is evaluated using additional covariates:
+
+Jitter
+Packet Loss
+Active Users
+
+
+
+
+## 🟩 mMTC — Massive Machine-Type Communication
+
+mMTC targets networks containing **large numbers of connected devices**.
+
+### Typical Applications
+
+* Internet of Things
+* Smart cities
+* Smart agriculture
+* Environmental monitoring
+* Large-scale sensor networks
+
+### Dataset Features
+
 
 Packet Rate
 Active Users
 
-Target:
+
+### Forecasting Target
+
 
 Future Packet Rate
-Network Slices
-eMBB — Enhanced Mobile Broadband
 
-eMBB represents applications requiring high data rates.
 
-Examples include:
+### Selected Model
 
-Video streaming
-Cloud gaming
-Virtual reality
-Augmented reality
+**PatchTST**
 
-Prediction target: Future Throughput
 
-URLLC — Ultra-Reliable Low-Latency Communication
 
-URLLC represents applications where latency and reliability are critical.
+# 🧠 Machine Learning Pipeline
 
-Examples include:
+The forecasting pipeline consists of:
 
-Industrial automation
-Robotics
-Autonomous systems
-Remote control applications
 
-Prediction target: Future Latency
+Raw Network Measurements
+            │
+            ▼
+      Data Preparation
+            │
+            ▼
+       Target Creation
+            │
+            ▼
+   Experiment-Aware Split
+            │
+            ▼
+     Sliding Windows
+            │
+            ▼
+       Normalization
+            │
+            ▼
+      Model Training
+            │
+            ▼
+        Evaluation
+            │
+            ▼
+    Future Prediction
 
-mMTC — Massive Machine-Type Communication
 
-mMTC represents deployments containing large numbers of low-data-rate devices.
 
-Examples include:
+# 🔒 Experiment-Aware Preprocessing
 
-IoT deployments
-Smart cities
-Environmental monitoring
-Smart agriculture
+Different UE configurations represent independent experiments.
 
-Prediction target: Future Packet Rate
+Therefore, time-series sequences are generated **without crossing experiment boundaries**.
 
-Machine Learning Models
+For example:
+```text
 
-Several time-series forecasting approaches were implemented and evaluated.
+┌───────────────────────────────┐
+│        1UE Experiment         │
+├───────────────────────────────┤
+│ [Sequence] [Sequence] [...]  │
+└───────────────────────────────┘
 
-LSTM
+              ✕
+        No sequence crossing
 
-Long Short-Term Memory networks were used for sequential network prediction.
+┌───────────────────────────────┐
+│        2UE Experiment         │
+├───────────────────────────────┤
+│ [Sequence] [Sequence] [...]  │
+└───────────────────────────────┘
+```
 
-LSTM models learn temporal dependencies in network measurements and provide a deep-learning approach for the forecasting pipeline.
+This prevents observations from independent experiments from being incorrectly treated as continuous temporal observations.
 
-PatchTST
 
-PatchTST is a Transformer-based time-series forecasting architecture that processes temporal sequences using patches and self-attention.
 
-It was evaluated for network prediction tasks, including the mMTC and URLLC experiments.
+# 🤖 Forecasting Models
 
-TimesFM
+## 🔵 LSTM
 
-TimesFM is a pretrained foundation model for time-series forecasting.
+**Long Short-Term Memory (LSTM)** networks are used to capture temporal dependencies in network measurements.
 
-It was evaluated as a pretrained forecasting approach and was also used with additional network covariates for the URLLC forecasting task.
+The LSTM implementation is based on **PyTorch**.
 
-Model Evaluation
+The selected eMBB configuration is:
 
-Forecasting models are evaluated using:
+| Parameter        | Value |
+| ---------------- | ----: |
+| Hidden Size      |   100 |
+| Number of Layers |     2 |
+| Sequence Length  |    10 |
+| Optimizer        | AdamW |
+| Epochs           |   100 |
 
-MAE — Mean Absolute Error
-RMSE — Root Mean Square Error
 
-A persistence baseline is also used where applicable to determine whether a forecasting model provides meaningful improvement over simply using a previous observation as the prediction.
 
-Selected Model Results
-Slice	Selected Forecasting Approach
-eMBB	LSTM
-URLLC	TimesFM
-mMTC	PatchTST
+## 🟣 PatchTST
 
-The repository contains the corresponding training and evaluation scripts.
+**PatchTST** is a Transformer-based architecture designed for time-series forecasting.
 
-Dynamic Resource Allocation
+Instead of processing every timestep independently, the input sequence is divided into patches that are processed using Transformer attention.
 
-The forecasting stage is connected to a QoS-aware resource controller.
+The selected mMTC configuration is:
 
-Instead of allocating a fixed number of PRBs to every slice, the controller converts predicted network conditions into normalized demand values.
+| Parameter          |        Value |
+| ------------------ | -----------: |
+| Sequence Length    |           60 |
+| Patch Size         |            5 |
+| Stride             |            5 |
+| d_model            |          128 |
+| Transformer Layers |            2 |
+| Loss               | SmoothL1Loss |
+| Gradient Clipping  |          1.0 |
 
-Model Predictions
-       │
-       ▼
+
+
+## 🟠 TimesFM
+
+**TimesFM** is a pretrained time-series foundation model.
+
+For the URLLC forecasting task, TimesFM is used with additional network covariates.
+
+### Configuration
+
+| Parameter        |                             Value |
+| ---------------- | --------------------------------: |
+| Context Length   |                               128 |
+| Forecast Horizon |                                 1 |
+| Mode             |                    XReg + TimesFM |
+| Covariates       | Jitter, Packet Loss, Active Users |
+
+
+
+# 📊 Forecasting Results
+
+## 🟦 eMBB — LSTM
+
+The final LSTM model was compared against a persistence baseline.
+
+| Model                |       MAE |      RMSE |
+| -------------------- | --------: | --------: |
+| Persistence Baseline |     2.776 |     3.528 |
+| **LSTM**             | **2.634** | **3.367** |
+
+The LSTM achieves a measurable improvement over the persistence baseline.
+
+### Prediction Visualization
+
+<p align="center">
+  <img src="plots/embb/actual_vs_predicted.png" width="850">
+</p>
+
+
+
+# 🟥 URLLC — TimesFM
+
+The selected TimesFM model outperformed the previously evaluated LSTM and PatchTST models.
+
+| Model       |       MAE |      RMSE |
+| ----------- | --------: | --------: |
+| LSTM        |     1.830 |     4.320 |
+| PatchTST    |     1.760 |     4.470 |
+| **TimesFM** | **1.248** | **1.966** |
+
+### Prediction Visualization
+
+<p align="center">
+  <img src="plots/urllc/timesfm_actual_vs_predicted.png" width="850">
+</p>
+
+<p align="center">
+  <img src="plots/urllc/timesfm_actual_vs_predicted_urllc.png" width="850">
+</p>
+
+
+
+# 🟩 mMTC — PatchTST
+
+The selected PatchTST configuration achieved:
+
+| Metric   |    Result |
+| -------- | --------: |
+| **MAE**  | **30.33** |
+| **RMSE** | **45.91** |
+
+This configuration is currently used as the selected mMTC forecasting benchmark.
+
+
+# ⚙️ Dynamic QoS-Aware Resource Controller
+
+The forecasting models provide predictions that are passed to a **resource allocation controller**.
+
+The controller estimates the demand of each network slice and dynamically distributes available PRBs.
+
+
+        Model Predictions
+               │
+               ▼
+        Demand Estimation
+               │
+               ▼
+      QoS-Aware Allocation
+               │
+               ▼
+       Dynamic PRB Allocation
+
+
+
+
+# 📐 PRB Allocation Strategy
+
+The controller operates with:
+
+
+TOTAL PRBs = 100
+
+
+Each slice receives a minimum resource guarantee:
+
+| Slice    | Minimum PRBs |
+| -------- | -----------: |
+| 🟦 eMBB  |           20 |
+| 🟥 URLLC |           30 |
+| 🟩 mMTC  |           20 |
+
+Therefore:
+
+
+Minimum Guaranteed Resources = 70 PRBs
+Remaining Resources = 30 PRBs
+
+
+The remaining resources are distributed proportionally according to predicted slice demand.
+
+The controller ensures:
+
+
+eMBB PRBs + URLLC PRBs + mMTC PRBs = 100
+
+
+
+
+# 📊 Demand Estimation
+
+Predicted network conditions are converted into normalized demand values.
+
+### eMBB
+
+
+Demand ∝ Predicted Throughput
+
+
+Higher predicted throughput indicates greater resource demand.
+
+### URLLC
+
+Demand ∝ Predicted Latency
+
+
+Higher predicted latency indicates increased urgency for URLLC resources.
+
+### mMTC
+
+
+Demand ∝ Predicted Packet Rate
+
+
+Higher predicted packet rate indicates increased demand from connected devices.
+
+
+
+# 📈 Dynamic vs Static Resource Allocation
+
+A static baseline uses a fixed allocation, while the proposed controller dynamically changes resource distribution according to predicted demand.
+
+### Alignment Error
+
+| Strategy               | Alignment Error |
+| ---------------------- | --------------: |
+| Static Allocation      |          0.1481 |
+| **Dynamic Allocation** |      **0.0852** |
+
+### Improvement
+
+The dynamic controller achieves an approximately:
+
+# **42.44% Reduction in Alignment Error**
+
+This demonstrates that the prediction-driven controller follows the estimated slice-demand distribution more closely than the static allocation baseline.
+
+
+
+# 📊 Resource Allocation Visualizations
+
+## Allocation by Active Users
+
+<p align="center">
+  <img src="resource_controller/plots/allocation_by_active_users.png" width="900">
+</p>
+
+
+
+## QoS Pressure vs PRB Allocation
+
+<p align="center">
+  <img src="resource_controller/plots/pressure_vs_prb_allocation.png" width="900">
+</p>
+
+
+
+## Dynamic vs Static Alignment
+
+<p align="center">
+  <img src="resource_controller/plots/dynamic_vs_static_alignment.png" width="900">
+</p>
+
+
+
+# 🔄 Complete System Workflow
+
+The complete system follows a sequential pipeline from 5G traffic generation to AI-based prediction and dynamic resource allocation.
+
+```text
+5G Testbed
+(Open5GS + UERANSIM)
+        │
+        ▼
+Traffic & QoS Data Collection
+        │
+        ▼
+Dataset Generation
+        │
+        ▼
+Preprocessing
+        │
+        ▼
+Time-Series Forecasting
+        │
+   ┌────┼────┐
+   ▼    ▼    ▼
+ eMBB URLLC mMTC
+ LSTM TimesFM PatchTST
+   │    │    │
+   └────┼────┘
+        ▼
+Predicted Network Conditions
+        │
+        ▼
 Demand Estimation
-       │
-       ▼
-QoS-Aware Allocation
-       │
-       ▼
-eMBB + URLLC + mMTC
-       │
-       ▼
-Exactly 100 PRBs
+        │
+        ▼
+QoS-Aware Resource Controller
+        │
+        ▼
+Dynamic PRB Allocation
+        │
+        ▼
+100 PRBs Distributed
+Across 3 Network Slices
 
-The controller maintains minimum PRB guarantees:
+```
 
-eMBB  ≥ 20 PRBs
-URLLC ≥ 30 PRBs
-mMTC  ≥ 20 PRBs
+# 📁 Repository Structure
 
-The remaining PRBs are distributed according to the predicted demand of each slice.
-
-This creates a prediction-driven resource allocation pipeline:
-
-Predict
-   ↓
-Estimate Demand
-   ↓
-Allocate Resources
-   ↓
-Evaluate
-Resource Allocation Results
-
-The final controller was evaluated against a static allocation baseline.
-
-Static Baseline
-eMBB  = 33 PRBs
-URLLC = 34 PRBs
-mMTC  = 33 PRBs
-Dynamic Controller
-
-The controller generates varying allocations according to predicted network conditions while maintaining the total PRB constraint and minimum resource guarantees.
-
-Validation
-Exactly 100 PRBs allocated: Yes
-Minimum PRB constraints respected: Yes
-Unique allocations observed: 46
-Alignment Evaluation
-Approach	Alignment Error
-Static Baseline	0.1481
-Dynamic Controller	0.0852
-
-Dynamic controller improvement: 42.44%
-
-Lower alignment error indicates that the dynamic allocation follows the predicted resource demand more closely than the static allocation.
-
-Resource Allocation Visualizations
-Dynamic PRB Allocation Under Different UE Loads
-
-QoS Pressure vs PRB Allocation
-
-Dynamic Controller vs Static Baseline
-
-Repository Structure
+```text
 5G-Network-Slicing-Project/
 │
 ├── datasets/
@@ -297,148 +667,129 @@ Repository Structure
 │
 ├── .gitignore
 └── README.md
-Technologies
-Category	Technology
-Programming Language	Python
-5G Core	Open5GS
-UE/gNB Simulator	UERANSIM
-Deep Learning	PyTorch
-Time-Series Foundation Model	TimesFM
-Data Processing	Pandas, NumPy
-Visualization	Matplotlib
-Evaluation	Scikit-learn
-Operating System	Ubuntu Linux
-Installation
+```
 
-Clone the repository:
 
-git clone https://github.com/monalisamajumder06/5G-Network-Slicing-Project.git
-cd 5G-Network-Slicing-Project
+# 🛠️ Technology Stack
 
-Install the required Python packages according to your environment.
+| Category               | Technology    |
+| ---------------------- | ------------- |
+| Programming            | Python        |
+| 5G Core                | Open5GS       |
+| 5G RAN / UE Simulation | UERANSIM      |
+| Deep Learning          | PyTorch       |
+| Sequence Model         | LSTM          |
+| Transformer            | PatchTST      |
+| Foundation Model       | TimesFM       |
+| Data Processing        | Pandas, NumPy |
+| Visualization          | Matplotlib    |
+| Environment            | Ubuntu Linux  |
 
-The 5G testbed additionally requires Open5GS and UERANSIM to be configured separately.
 
-Running the Project
 
-The project can be executed as a pipeline.
+# 🔬 Experimental Setup
 
-Step 1 — Prepare the 5G Testbed
+The experiments consider six different active-user configurations:
 
-Configure:
 
-Open5GS
-UERANSIM
-Subscribers
-Network slices
-UEs and gNB
-Step 2 — Generate or Collect Network Data
+1UE
+2UE
+4UE
+6UE
+8UE
+10UE
 
-Relevant scripts are available under:
 
-scripts/data_generation/
-scripts/embb/
-Step 3 — Preprocess the Datasets
+This allows the system to evaluate forecasting and resource allocation behavior under different network loads.
 
-Preprocessing utilities are located under:
 
-scripts/preprocessing/
-Step 4 — Train Forecasting Models
 
-Training scripts are located under:
+# ⚠️ Limitations
 
-scripts/training/
-Step 5 — Evaluate Models
+The current resource controller is a **rule-based QoS-aware controller**.
 
-Evaluation scripts are located under:
+It uses predicted network conditions to estimate demand and allocate PRBs, but it is not yet a reinforcement-learning or optimization-based network orchestrator.
 
-scripts/evaluation/
-Step 6 — Run Resource Allocation
+The current architecture therefore represents:
 
-The final resource controller is located at:
 
-resource_controller/src/controller.py
+Forecast
+   ↓
+Demand Estimation
+   ↓
+Dynamic Allocation
 
-It consumes prediction data and generates dynamic PRB allocations for the three network slices.
 
-End-to-End Workflow
-                 ┌───────────────────────┐
-                 │    Open5GS + UERANSIM │
-                 └───────────┬───────────┘
-                             │
-                             ▼
-                 ┌───────────────────────┐
-                 │ Traffic & QoS Data    │
-                 └───────────┬───────────┘
-                             │
-                             ▼
-                 ┌───────────────────────┐
-                 │    Preprocessing      │
-                 └───────────┬───────────┘
-                             │
-                             ▼
-              ┌──────────────────────────────┐
-              │    Time-Series Forecasting   │
-              │                              │
-              │  LSTM / PatchTST / TimesFM  │
-              └──────────────┬───────────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Predicted Conditions │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ QoS-Aware Controller │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Dynamic PRB Allocation│
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                       100 PRBs / Cell
-Limitations
+rather than a completely autonomous closed-loop 5G orchestration system.
 
-The current resource controller is a rule-based QoS-aware allocation mechanism, rather than a reinforcement-learning or optimization-based network orchestrator.
 
-The current evaluation therefore demonstrates the connection between:
 
-predicted network demand → dynamic resource allocation
+# 🔮 Future Work
 
-rather than claiming a fully autonomous 5G network orchestrator.
+Future improvements can include:
 
-The current controller provides a foundation that can be extended with more advanced optimization and learning-based resource allocation methods.
+* Reinforcement Learning-based resource allocation
+* Optimization-based PRB scheduling
+* Real-time closed-loop resource orchestration
+* Live network metric integration
+* Real-time model inference
+* SLA-aware resource management
+* Automated QoS enforcement
+* SDN integration
+* Physical 5G hardware deployment
+* Joint forecasting and resource optimization
+* Online model adaptation
+* Zero-Touch Network Slicing
 
-Future Work
 
-Potential extensions include:
 
-Reinforcement Learning-based slice orchestration
-Optimization-based PRB allocation
-Real-time closed-loop resource allocation
-Integration with live 5G network metrics
-Real-time model inference
-Physical 5G hardware deployment
-SDN integration
-Automated SLA/QoS enforcement
-Closed-loop Zero-Touch Network Slicing
-References
-Open5GS
-UERANSIM
-PyTorch
-TimesFM
-PatchTST
-3GPP 5G Network Slicing specifications
-Author
+# 📚 Key Contribution
 
-Monalisa Majumder
+The project combines **5G network slicing, time-series forecasting, and dynamic resource allocation** into a single pipeline.
 
-B.Tech Computer Science and Engineering
-SRM Institute of Science and Technology
+The main contribution can be summarized as:
 
-Research Internship under Prof. Soumya Kanti Ghosh
-Department of Computer Science and Engineering
-Indian Institute of Technology Kharagpur
+
+                ┌─────────────────────┐
+                │ 5G Network Slicing  │
+                └──────────┬──────────┘
+                           │
+                           +
+                           │
+                ┌──────────▼──────────┐
+                │ Time-Series         │
+                │ Forecasting         │
+                └──────────┬──────────┘
+                           │
+                           +
+                           │
+                ┌──────────▼──────────┐
+                │ Dynamic QoS-Aware   │
+                │ Resource Allocation │
+                └─────────────────────┘
+
+
+Instead of allocating resources purely based on the **current state of the network**, the proposed framework uses **predicted future conditions** to guide resource allocation.
+
+
+
+# 👩‍💻 Author
+
+<div align="center">
+
+## Monalisa Majumder
+
+**B.Tech Computer Science and Engineering**  
+**SRM Institute of Science and Technology**
+
+Research Internship under **Prof. Soumya Kanti Ghosh**  
+Department of Computer Science and Engineering  
+**Indian Institute of Technology Kharagpur**
+
+<br>
+
+⭐ **If you found this project interesting, consider starring the repository!**
+
+</div>
+
+
